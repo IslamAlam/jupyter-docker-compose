@@ -14,4 +14,5 @@ if __name__ == "__main__":
 
     print("\nCopy this line into the .env file:\n")
     hash = IPython.lib.passwd(args.password)
+    print("Password=" + args.password)
     print("ACCESS_TOKEN=" + hash)
