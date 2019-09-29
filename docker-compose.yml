@@ -15,9 +15,12 @@ version:  '2.3'
 services:
   jupyter:
       container_name: jupyter
-      image: jupyter/datascience-notebook:latest
+      # image: jupyter/datascience-notebook:latest
+      build:   # path is relative to docker-compose.yml localtion
+        context: .
+        dockerfile: ./service.jupyter/dev.dockerfile
       env_file:
-        - .env
+        - ./.env
       volumes:
         - ${LOCAL_WORKING_DIR}:/home/jovyan/work
         - ${LOCAL_DATASETS}:/home/jovyan/work/datasets
@@ -25,33 +28,59 @@ services:
         - ${LOCAL_SSL_CERTS}:/etc/ssl/notebook
       ports:
         - ${PORT}:8888
+      expose: 
+        - 8888
       runtime: nvidia
       user: root
       environment:
-        JUPYTER_ENABLE_LAB: 'yes'
+        - HUB_IP=jupyterhub
+        - HOST
+        #JUPYTER_ENABLE_LAB: 'yes'
+        #HUB_IP: jupyter
+        #- HOST
+      labels:
+        #- traefik.enable=true
+        # - traefik.frontend.rule=Host:${HOST}
+        #- "traefik.frontend.rule=PathPrefixStrip: /" # Host:138.246.233.14
+        # - traefil.docker.network=traefik-net
+        # - traefik.port=8888
+        - "traefik.port=8888"
+        - "traefik.protocol=http"
+        #- "traefik.tags=${AGAVE_USERNAME},jupyter"
+        #- "traefik.backend=${AGAVE_USERNAME}-training"
+        - "traefik.frontend.rule=PathPrefix:/"
+      
+      # network_mode: "bridge" 
+        #"traefik-net"
+       #"bridge"  
       command: "start-notebook.sh \
         --NotebookApp.token=${ACCESS_TOKEN} \
-        --NotebookApp.certfile=/etc/ssl/notebook/jupyter.pem \
         --NotebookApp.allow_origin='*' \
         --NotebookApp.ip='0.0.0.0' "
+        # --NotebookApp.certfile=/etc/ssl/notebook/jupyter.pem \
+        
 # nvidia-smi && 
 
-  nginxserver: 
-    container_name: nginxserver 
-    image: nginx
-    links: 
-      - jupyter
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx.crt:/data/cert.crt
-      - ./nginx.key:/data/key.key
-    ports:
-      - 80:80
-      - 443:443
-    volumes_from:
-      - jupyter
-    depends_on:
-      - jupyter
+#  nginxserver: 
+#    container_name: nginxserver 
+#    # image: nginx:latest
+#    build:   # path is relative to docker-compose.yml localtion
+#       context: .
+#       dockerfile: ./service.nginx/dev.dockerfile
+#    links:
+#      - jupyter
+#    volumes:
+#      - ./service.nginx/nginx.conf:/etc/nginx/nginx.conf
+#      - ./service.nginx/nginx.crt:/data/cert.crt
+#      - ./service.nginx/nginx.key:/data/key.key
+#    ports:
+#      - 80:80
+#      - 8080:8080
+#      - 443:443
+#    volumes_from:
+#      - jupyter
+#    depends_on:
+#      - jupyter
 # letsencrypt
 # openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
 # openssl req -new -C DE -s Bayern -L Munich -O TUM -OU ESPACE -newkey rsa:2048 -nodes -keyout letsencrypt.key -out letsencrypt.csr
@@ -59,3 +88,37 @@ services:
 
 # sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
 # sudo openssl req -x509 -nodes -days 365 -subj "/C=DE/ST=Bayern/L=Munich/O=TUM Security/OU=ESPACE"  -newkey rsa:2048 -keyout nginx.key -out nginx.crt
+# sudo openssl req -x509 -nodes -days 365 -subj "/C=DE/ST=Bayern/L=Munich/O=TUM Security/OU=ESPACE"  -newkey rsa:2048 -keyout server.key -out server.crt
+
+
+# http://danielhnyk.cz/running-scipy-notebook-in-docker-publicly-with-password/
+
+  reverse-proxy:
+      image: traefik:v1.7.16
+      ports:
+        - "80:80"
+        - "443:443"
+        - "8080:8080"
+      volumes:
+        - ./service.reverse-proxy/traefik.toml:/etc/traefik/traefik.toml
+        - /var/run/docker.sock:/var/run/docker.sock
+        - ./certs:/etc/certs
+        - ./certs/server.crt:/etc/certs/server.crt
+        - ./certs/server.key:/etc/certs/server.key
+     #network_mode: "bridge" 
+        #"traefik-net"
+
+
+# networks:
+#     traefik-net: {} 
+
+networks:
+  internal:
+  web:
+    external: true
+
+
+
+# https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/master/_posts/2018-10-17-jupyterhub-docker.md
+# https://github.com/agavetraining/sc18/blob/master/docker-compose.yml
+# 
