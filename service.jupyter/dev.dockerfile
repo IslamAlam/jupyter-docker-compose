@@ -1,4 +1,10 @@
-FROM jupyter/datascience-notebook
+#ARG BASE_CONTAINER=jupyter/base-notebook
+ARG BASE_CONTAINER=jupyter/datascience-notebook
+FROM $BASE_CONTAINER
+ 
+ARG NB_USER="jovyan"
+ARG NB_UID="1000"
+ARG NB_GID="100"
 
 SHELL ["/bin/bash", "-c"]
 
@@ -22,6 +28,7 @@ RUN apt-get -qq update;\
 	perl\
 	python-pip\
 	rsync\
+	htop\
 	;\
 	apt-get -qq clean;\
 	apt-get -qq autoremove;\
@@ -29,9 +36,22 @@ RUN apt-get -qq update;\
 	usermod -aG sudo jovyan;\
 	echo 'jovyan ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/jovyan
 
+# Configure environment
+ENV CONDA_DIR=/opt/conda \
+  SHELL=/bin/bash \
+  NB_USER=$NB_USER \
+  NB_UID=$NB_UID \
+  NB_GID=$NB_GID \
+  LC_ALL=en_US.UTF-8 \
+  LANG=en_US.UTF-8 \
+  LANGUAGE=en_US.UTF-8
+ENV PATH=$CONDA_DIR/bin:$PATH \
+HOME=/home/$NB_USER
+
 USER jovyan
 RUN set -eux;\
 	conda install\
+	# nb_conda_kernels\
 	ipywidgets\
 	jupyterlab-git\
 	nbdime\
@@ -49,3 +69,21 @@ RUN set -eux;\
 	plotlywidget\
 	--no-build;\
 	NODE_OPTIONS=--max-old-space-size=4096 jupyter lab build;
+
+# USER root
+
+# RUN conda install nb_conda_kernels;
+
+COPY ./service.jupyter/demo /tmp/demo
+RUN bash /tmp/demo/install-demos.sh
+
+USER jovyan
+
+
+# Install Tensorflow
+
+# conda update -n base conda
+
+# https://github.com/CanDIG/CanDIGv2/tree/master/lib/jupyter
+
+

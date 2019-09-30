@@ -94,6 +94,7 @@ services:
 # http://danielhnyk.cz/running-scipy-notebook-in-docker-publicly-with-password/
 
   reverse-proxy:
+      container_name: traefik
       image: traefik:v1.7.16
       ports:
         - "80:80"
