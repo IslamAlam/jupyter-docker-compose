@@ -1,21 +1,23 @@
 name: tensorflow_1_4
 channels:
-- conda-forge
-- defaults
+  - conda-forge
+  - defaults
+  - anaconda
 dependencies:
 - conda-forge::python=3.6
 - conda-forge::keras
 - conda-forge::scipy<=1.2.2
-- conda-forge::tensorflow=1.4.0
+- anaconda::tensorflow=1.4.1
+- anaconda::tensorflow-tensorboard
 - conda-forge::scikit-learn #=0.18.1
 - conda-forge::scikit-image
 - conda-forge::pandas #=0.22.0
 - conda-forge::numpy
 - conda-forge::Pillow
-- conda-forge::statsmodels=0.8.0
-- conda-forge::numexpr=2.6.4
-- conda-forge::hdf5=1.10.1
-- conda-forge::six=1.11.0
+- conda-forge::statsmodels
+- conda-forge::numexpr
+- conda-forge::hdf5
+- conda-forge::six
 - conda-forge::matplotlib #=2.1.2
 - conda-forge::seaborn #=0.8.1
 - conda-forge::plotnine #=0.3.0
@@ -25,9 +27,9 @@ dependencies:
 #- conda-forge::widgetsnbextension=2.0.0
 #- conda-forge::nb_conda_kernels=2.1.0
 #- anaconda::pydot=1.2.3
-- conda-forge::graphviz=2.38.0
-- conda-forge::python-graphviz=0.8
-- conda-forge::libiconv=1.15
+- conda-forge::graphviz
+- conda-forge::python-graphviz
+- conda-forge::libiconv
 
 #- pip:
 #  - keras-tqdm==2.0.1
