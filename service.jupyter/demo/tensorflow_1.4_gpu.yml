@@ -29,8 +29,9 @@ dependencies:
   - conda-forge::python-graphviz=0.8
   - conda-forge::libiconv=1.15
   - pip>=18.0
-  - anaconda::tensorflow-gpu=1.4.1
-  - anaconda::tensorflow-tensorboard
+  - anaconda::ht
+  # - anaconda::tensorflow-tensorboard
+  - conda-forge::tensorboard
 
 #  - pip:
 #    - tensorflow-gpu==1.4.1
