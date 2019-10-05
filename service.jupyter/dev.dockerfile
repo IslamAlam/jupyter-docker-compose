@@ -6,6 +6,15 @@ ARG NB_USER="jovyan"
 ARG NB_UID="1000"
 ARG NB_GID="100"
 
+# Using CUDA in your Docker Container 
+# https://medium.com/@adityathiruvengadam/cuda-docker-%EF%B8%8F-for-deep-learning-cab7c2be67f9
+ENV PATH /usr/local/cuda/bin/:$PATH
+ENV LD_LIBRARY_PATH /usr/local/cuda/lib:/usr/local/cuda/lib64
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+
+
 SHELL ["/bin/bash", "-c"]
 
 USER root
@@ -70,12 +79,55 @@ RUN set -eux;\
 	--no-build;\
 	NODE_OPTIONS=--max-old-space-size=4096 jupyter lab build;
 
+# RUN conda install -y nb_conda
+# Create Conda ENV and add it to Jupyter	
+RUN conda create --name tf_gpu_1_4 \
+	-c anaconda \
+	"cudnn" \
+	"cudatoolkit" \
+	"h5py" \
+	"ipykernel" \
+	"matplotlib<=3.0.3" \
+	"numpy<1.16.7" \
+	"pillow=4.3.0" \
+	"python=3.6" \
+	"scikit-image" \
+	"scipy=1.2.1" \
+	"tensorflow=1.4.*" \
+	"tensorflow-gpu=1.4.*" \
+	"keras-gpu"\
+#	"tensorboard" \
+	-y;\
+	source activate tf_gpu_1_4;\
+	python -m ipykernel install --user --name "tf_gpu_1_4" --display-name "Tensorflow GPU 1.4";\
+	source deactivate;
+
+RUN conda create --name tf_gpu_14 \
+	-c anaconda \
+#	"h5py" \
+	"ipykernel" \
+	"matplotlib<=3.0.3" \
+	"numpy<1.16.7" \
+	"pillow=4.3.0" \
+	"python=3.6" \
+	"scikit-image" \
+	"scipy=1.2.1" \
+#	"tensorflow=1.14.*" \
+#	"tensorflow-gpu=1.14.*" \
+#	"keras-gpu"\
+#	"tensorboard" \
+	-y;\
+	source activate tf_gpu_14;\
+	pip install tensorflow-gpu==1.14.*;\
+	python -m ipykernel install --user --name "tf_gpu_14" --display-name "Tensorflow GPU 1.14";\
+	source deactivate;
+
 # USER root
 
 # RUN conda install nb_conda_kernels;
 
 COPY ./service.jupyter/demo /tmp/demo
-RUN bash /tmp/demo/install-demos.sh
+# RUN bash /tmp/demo/install-demos.sh
 
 USER jovyan
 

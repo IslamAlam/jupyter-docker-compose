@@ -26,6 +26,7 @@ services:
         - ${LOCAL_DATASETS}:/home/jovyan/work/datasets
         - ${LOCAL_MODULES}:/home/jovyan/work/modules
         - ${LOCAL_SSL_CERTS}:/etc/ssl/notebook
+        - /usr/local/cuda:/usr/local/cuda
       ports:
         - ${PORT}:8888
       expose: 
@@ -122,4 +123,5 @@ networks:
 
 # https://github.com/OpenDreamKit/OpenDreamKit.github.io/blob/master/_posts/2018-10-17-jupyterhub-docker.md
 # https://github.com/agavetraining/sc18/blob/master/docker-compose.yml
-# 
+# sudo openssl req -x509 -nodes -days 365 -subj "/C=DE/ST=Bayern/L=Munich/O=TUM Security/OU=ESPACE"  -newkey rsa:2048 -keyout server.key -out server.crt
+
