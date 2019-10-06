@@ -2,8 +2,12 @@
 # to run it 
 # chmod +x build.sh
 docker rmi $(docker images | grep '^<none>' | awk '{print $3}')
-# docker-compose up --build -d
+
+
 nohup docker-compose up --build -d > start_docker.log 2>&1 &
+
+# docker-compose up --build -d
+
 # docker-compose up -d --build
 # find / -xdev 2>/dev/null -name "tensorflow_1_4"
 # nohup ./build.sh >> my.log 2>>&1 &
