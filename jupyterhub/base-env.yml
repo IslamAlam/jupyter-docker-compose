@@ -1,0 +1,39 @@
+name: gda_py3 
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python>=3.6
+  - gdal
+  - numpy
+  - scipy
+  - matplotlib
+  - rasterio
+  - geopandas
+  - pandas
+  - xarray
+  - dask
+  - cartopy
+
+  - shapely
+  - fiona
+  - scikit-image
+
+  - coreutils
+  - hvplot
+  - ipdb
+  - ipyleaflet
+  - ipywidgets
+  - jupyter
+  - jupyterlab
+  - lastools
+  - netcdf4
+  - opencv
+  - parallel
+  - tmux
+  - wget
+
+  - pip:
+    - matplotlib-scalebar
+    - nbgitpuller

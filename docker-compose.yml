@@ -1,24 +1,13 @@
-# version:  '3'
-# services:
-#   jupyterlab:
-#       container_name: jupyterlab
-#       image: jupyter/datascience-notebook:latest
-#       volumes:
-#         - .:/home/jovyan/work
-#       ports:
-#         - 8888:8888
-#       user: root
-#       environment:
-#         JUPYTER_ENABLE_LAB: 'yes'
-
 version:  '2.3'
 services:
   jupyter:
       container_name: jupyter
+      devices:
+        - /dev/nvidia0
       # image: jupyter/datascience-notebook:latest
       build:   # path is relative to docker-compose.yml localtion
         context: .
-        dockerfile: ./service.jupyter/dev.dockerfile
+        dockerfile:  ./jupyterhub/Dockerfile
       env_file:
         - ./.env
       volumes:
@@ -36,6 +25,9 @@ services:
       environment:
         - HUB_IP=jupyterhub
         - HOST
+        #- NVIDIA_VISIBLE_DEVICES=all
+        #- NVIDIA_DRIVER_CAPABILITIES= compute,utility,video,graphics,display
+        #- NVIDIA_REQUIRE_CUDA= "cuda>=9.0"
         #JUPYTER_ENABLE_LAB: 'yes'
         #HUB_IP: jupyter
         #- HOST
