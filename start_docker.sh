@@ -4,7 +4,8 @@
 docker rmi $(docker images | grep '^<none>' | awk '{print $3}')
 
 
-nohup docker-compose up --build -d > start_docker.log 2>&1 &
+# nohup docker-compose up --build -d > start_docker.log 2>&1 &
+nohup docker-compose up --build > start_docker.log 2>&1 &
 
 # docker-compose up --build -d
 

@@ -8,6 +8,7 @@ services:
       build:   # path is relative to docker-compose.yml localtion
         context: .
         dockerfile:  ./jupyterhub/Dockerfile
+      restart: always
       env_file:
         - ./.env
       volumes:
@@ -89,6 +90,7 @@ services:
   reverse-proxy:
       container_name: traefik
       image: traefik:v1.7.16
+      restart: always
       ports:
         - "80:80"
         - "443:443"
