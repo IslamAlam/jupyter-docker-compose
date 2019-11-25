@@ -1,6 +1,11 @@
 # For the latest tag, see: https://hub.docker.com/r/jupyter/datascience-notebook/tags/
 FROM jupyter/datascience-notebook:latest
 
+ARG NB_USER="jovyan"
+ARG NB_UID="1000"
+ARG NB_GID="100"
+
+
 # GPU powered ML
 # ----------------------------------------
 RUN conda install -c conda-forge --yes --quiet \
@@ -13,6 +18,8 @@ RUN conda install -c conda-forge --yes --quiet \
     ;
 
 SHELL ["/bin/bash", "-c"]
+
+
 # Configure environment
 ENV CONDA_DIR=/opt/conda \
     SHELL=/bin/bash \
@@ -24,6 +31,58 @@ ENV CONDA_DIR=/opt/conda \
     LANGUAGE=en_US.UTF-8
 ENV PATH=$CONDA_DIR/bin:$PATH \
     HOME=/home/$NB_USER
+
+# Install tools
+USER root
+RUN apt-get -qq update;\
+	apt-get -qq install --no-install-recommends gnupg;\
+	wget -qO - https://package.perforce.com/perforce.pubkey | apt-key add - ;\
+	echo "deb http://package.perforce.com/apt/ubuntu bionic release" > /etc/apt/sources.list.d/perforce.list;\
+	apt-get -qq update;\
+	apt-get -qq install --no-install-recommends\
+	g++\
+	gcc\
+	gdb\
+	gnupg\
+	helix-cli\
+	libc6-i386\
+	make\
+	netbase\
+	netcat-openbsd\
+	openssh-client\
+	perl\
+	python-pip\
+	rsync\
+	htop\
+	;\
+	apt-get -qq clean;\
+	apt-get -qq autoremove;\
+	rm -rf /var/lib/apt/lists/* /root/.cache;\
+	usermod -aG sudo jovyan;\
+	echo 'jovyan ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/jovyan
+
+# Install tools for Jupyterlab 
+USER jovyan
+RUN set -eux;\
+	conda install\
+	# nb_conda_kernels\
+	ipywidgets\
+	jupyterlab-git\
+	nbdime\
+	numexpr\
+	plotly\
+	psycopg2\
+	;\
+	nbdime extensions --enable;\
+	jupyter serverextension enable --py jupyterlab_git;\
+#
+	jupyter labextension install\
+	@jupyter-widgets/jupyterlab-manager\
+	@jupyterlab/git\
+	jupyterlab-plotly\
+	plotlywidget\
+	--no-build;\
+	NODE_OPTIONS=--max-old-space-size=4096 jupyter lab build;
 
 
 RUN conda create --name tf_1_14  -c conda-forge --yes --quiet \
